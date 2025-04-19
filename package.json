@@ -1,13 +1,17 @@
 {
   "name": "hyper-mcp",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "test": "tsc && jest",
     "start": "node --watch ./dist/index.js",
     "inspect": "mcp-inspector node ./dist/index.js",
     "watch": "tsc --watch",
-    "lint": "eslint"
+    "lint": "eslint",
+    "compile": "tsc"
   },
   "keywords": [],
   "author": "",
