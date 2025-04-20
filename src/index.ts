@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { getConfigPath, loadConfig } from "./config";
 import { createConnections } from "./connections";
-import { callTool, listTools } from "./tools";
+import { callTool, listTools, updateTools } from "./tools";
 import { z } from "zod";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
@@ -22,6 +22,11 @@ const start = async () => {
   const connections = await createConnections(config);
 
   server.tool("listTools", "List available tools", () => {
+    return listTools(connections);
+  });
+
+  server.tool("updateTools", "Update tools list", async () => {
+    await updateTools(connections);
     return listTools(connections);
   });
 
