@@ -3,7 +3,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { getConfigPath, loadConfig } from "./config";
-import { createConnections } from "./connections";
+import { createClients } from "./clients";
 import { callTool, listTools } from "./tools";
 import { z } from "zod";
 import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
@@ -18,12 +18,9 @@ const start = async () => {
 
   const configPath = getConfigPath({ env: process.env, argv: process.argv });
   const config = loadConfig(configPath);
+  const clients = await createClients(config);
 
-  const connections = await createConnections(config);
-
-  server.tool("listTools", "List available tools", () => {
-    return listTools(connections);
-  });
+  server.tool("listTools", "List available tools", () => listTools(clients));
 
   server.tool(
     "callTool",
@@ -33,7 +30,7 @@ const start = async () => {
       toolArguments: z.record(z.string(), z.unknown()),
     },
     async ({ name, toolArguments }): Promise<CallToolResult> => {
-      return callTool({ connections, name, toolArguments });
+      return callTool({ clients, name, toolArguments });
     },
   );
 

@@ -1,5 +1,5 @@
 import { callTool, listTools } from "./index";
-import { Connection } from "../connections";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
 jest.mock("@modelcontextprotocol/sdk/types.js", () => ({
@@ -9,60 +9,51 @@ jest.mock("@modelcontextprotocol/sdk/types.js", () => ({
   },
 }));
 
-const mockErrorConnection = {
-  name: "errorConnection",
-  client: {
-    callTool: jest.fn().mockRejectedValue(new Error("Tool execution failed")),
+const mockTool = (name: string) => ({
+  name,
+  description: name,
+  inputSchema: {
+    type: "object" as const,
+    properties: {},
   },
-  tools: {
-    tools: [{ name: "error_tool", description: "A tool that throws errors" }],
-  },
-} as unknown as Connection;
+});
 
-const mockMultiToolConnection = {
-  name: "multi-tool-connection",
-  client: {
-    callTool: jest.fn().mockResolvedValue({
-      content: [
-        { type: "text", text: "Tool result from multi-tool-connection" },
-      ],
-    }),
-  },
-  tools: {
-    tools: [
-      { name: "tool1", description: "Tool 1" },
-      { name: "tool2", description: "Tool 2" },
-    ],
-  },
-} as unknown as Connection;
+const mockErrorClient = {
+  callTool: jest.fn().mockRejectedValue(new Error("Tool execution failed")),
+  listTools: jest.fn().mockResolvedValue({
+    tools: [mockTool("error_tool")],
+  }),
+} as unknown as Client;
 
-const mockSingleToolConnection = {
-  name: "single-tool-connection",
-  client: {
-    callTool: jest.fn().mockResolvedValue({
-      content: [
-        { type: "text", text: "Tool result from single-tool-connection" },
-      ],
-    }),
-  },
-  tools: {
-    tools: [{ name: "tool3", description: "Tool 3" }],
-  },
-} as unknown as Connection;
+const mockMultiToolClient = {
+  callTool: jest.fn().mockResolvedValue({
+    content: [{ type: "text", text: "Tool result from multi-tool-client" }],
+  }),
+  listTools: jest.fn().mockResolvedValue({
+    tools: [mockTool("tool1"), mockTool("tool2")],
+  }),
+} as unknown as Client;
 
-const mockConnections = [mockMultiToolConnection, mockSingleToolConnection];
+const mockSingleToolClient = {
+  callTool: jest.fn().mockResolvedValue({
+    content: [{ type: "text", text: "Tool result from single-tool-client" }],
+  }),
+  listTools: jest.fn().mockResolvedValue({
+    tools: [mockTool("tool3")],
+  }),
+} as unknown as Client;
+
+const mockClients = [mockMultiToolClient, mockSingleToolClient];
 
 describe("listTools", () => {
-  it("lists all available tools", () => {
-    const result = listTools(mockConnections);
+  it("lists all available tools", async () => {
+    const result = await listTools(mockClients);
 
     expect(result).toEqual({
       content: [
         {
           type: "text",
-          text: expect.stringContaining(
-            JSON.stringify(mockMultiToolConnection.tools),
-          ),
+          text: expect.stringContaining("tool1"),
         },
       ],
     });
@@ -73,57 +64,63 @@ describe("listTools", () => {
     expect(result.content[0].text).toContain("tool3");
   });
 
-  it("returns empty content for empty connections array", () => {
-    const result = listTools([]);
+  it("returns empty content for empty clients array", async () => {
+    const result = await listTools([]);
 
     expect(result).toEqual({
-      content: [{ type: "text", text: "" }],
+      content: [{ type: "text", text: "[]" }],
     });
   });
 });
 
 describe("callTool", () => {
-  it("calls tools in correct connection with arguments", async () => {
-    const result = await callTool({
-      connections: mockConnections,
-      name: "tool1",
-      toolArguments: { key: "value" },
+  beforeEach(() => {
+    jest.spyOn(mockMultiToolClient, "listTools").mockResolvedValue({
+      tools: [mockTool("tool1"), mockTool("tool2")],
     });
 
-    expect(mockMultiToolConnection.client.callTool).toHaveBeenCalledWith({
-      name: "tool1",
-      arguments: { key: "value" },
-    });
-
-    expect(result).toEqual({
-      content: [
-        { type: "text", text: "Tool result from multi-tool-connection" },
-      ],
+    jest.spyOn(mockSingleToolClient, "listTools").mockResolvedValue({
+      tools: [mockTool("tool3")],
     });
   });
 
-  it("calls tools in a different connection with arguments", async () => {
+  it("calls tools in correct client with arguments", async () => {
     const result = await callTool({
-      connections: mockConnections,
+      clients: mockClients,
+      name: "tool1",
+      toolArguments: { key: "value" },
+    });
+
+    expect(mockMultiToolClient.callTool).toHaveBeenCalledWith({
+      name: "tool1",
+      arguments: { key: "value" },
+    });
+
+    expect(result).toEqual({
+      content: [{ type: "text", text: "Tool result from multi-tool-client" }],
+    });
+  });
+
+  it("calls tools in a different client with arguments", async () => {
+    const result = await callTool({
+      clients: mockClients,
       name: "tool3",
       toolArguments: { key: "value" },
     });
 
-    expect(mockSingleToolConnection.client.callTool).toHaveBeenCalledWith({
+    expect(mockSingleToolClient.callTool).toHaveBeenCalledWith({
       name: "tool3",
       arguments: { key: "value" },
     });
 
     expect(result).toEqual({
-      content: [
-        { type: "text", text: "Tool result from single-tool-connection" },
-      ],
+      content: [{ type: "text", text: "Tool result from single-tool-client" }],
     });
   });
 
   it("returns an error message when a tool isn't found", async () => {
     const result = await callTool({
-      connections: mockConnections,
+      clients: mockClients,
       name: "non_existent_tool",
       toolArguments: {},
     });
@@ -140,7 +137,7 @@ describe("callTool", () => {
 
   it("parses and validates the tool result", async () => {
     const result = await callTool({
-      connections: mockConnections,
+      clients: mockClients,
       name: "tool1",
       toolArguments: {},
     });
@@ -151,9 +148,13 @@ describe("callTool", () => {
   });
 
   it("passes errors from clients through", async () => {
+    jest.spyOn(mockErrorClient, "listTools").mockResolvedValue({
+      tools: [mockTool("error_tool")],
+    });
+
     await expect(
       callTool({
-        connections: [mockErrorConnection],
+        clients: [mockErrorClient],
         name: "error_tool",
         toolArguments: {},
       }),
