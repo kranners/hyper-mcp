@@ -29,7 +29,11 @@ export const loadConfig = (configPath: string): McpConfig => {
   return McpConfig.parse(configContents);
 };
 
-export const DEFAULT_CONFIG_PATH = join(homedir(), ".cursor", "jailbreak.mcp.json");
+export const DEFAULT_CONFIG_PATH = join(
+  homedir(),
+  ".cursor",
+  "jailbreak.mcp.json",
+);
 
 export type GetConfigPathInput = {
   env: NodeJS.ProcessEnv;

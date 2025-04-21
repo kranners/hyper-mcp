@@ -9,9 +9,9 @@ jest.mock("@modelcontextprotocol/sdk/types.js", () => ({
   },
 }));
 
-const mockToolWithSchema = (name: string, description: string) => ({
+const mockTool = (name: string) => ({
   name,
-  description,
+  description: name,
   inputSchema: {
     type: "object" as const,
     properties: {},
@@ -21,32 +21,25 @@ const mockToolWithSchema = (name: string, description: string) => ({
 const mockErrorClient = {
   callTool: jest.fn().mockRejectedValue(new Error("Tool execution failed")),
   listTools: jest.fn().mockResolvedValue({
-    tools: [mockToolWithSchema("error_tool", "A tool that throws errors")],
+    tools: [mockTool("error_tool")],
   }),
 } as unknown as Client;
 
 const mockMultiToolClient = {
   callTool: jest.fn().mockResolvedValue({
-    content: [
-      { type: "text", text: "Tool result from multi-tool-client" },
-    ],
+    content: [{ type: "text", text: "Tool result from multi-tool-client" }],
   }),
   listTools: jest.fn().mockResolvedValue({
-    tools: [
-      mockToolWithSchema("tool1", "Tool 1"),
-      mockToolWithSchema("tool2", "Tool 2"),
-    ],
+    tools: [mockTool("tool1"), mockTool("tool2")],
   }),
 } as unknown as Client;
 
 const mockSingleToolClient = {
   callTool: jest.fn().mockResolvedValue({
-    content: [
-      { type: "text", text: "Tool result from single-tool-client" },
-    ],
+    content: [{ type: "text", text: "Tool result from single-tool-client" }],
   }),
   listTools: jest.fn().mockResolvedValue({
-    tools: [mockToolWithSchema("tool3", "Tool 3")],
+    tools: [mockTool("tool3")],
   }),
 } as unknown as Client;
 
@@ -82,15 +75,12 @@ describe("listTools", () => {
 
 describe("callTool", () => {
   beforeEach(() => {
-    jest.spyOn(mockMultiToolClient, 'listTools').mockResolvedValue({
-      tools: [
-        mockToolWithSchema("tool1", "Tool 1"),
-        mockToolWithSchema("tool2", "Tool 2"),
-      ],
+    jest.spyOn(mockMultiToolClient, "listTools").mockResolvedValue({
+      tools: [mockTool("tool1"), mockTool("tool2")],
     });
 
-    jest.spyOn(mockSingleToolClient, 'listTools').mockResolvedValue({
-      tools: [mockToolWithSchema("tool3", "Tool 3")],
+    jest.spyOn(mockSingleToolClient, "listTools").mockResolvedValue({
+      tools: [mockTool("tool3")],
     });
   });
 
@@ -107,9 +97,7 @@ describe("callTool", () => {
     });
 
     expect(result).toEqual({
-      content: [
-        { type: "text", text: "Tool result from multi-tool-client" },
-      ],
+      content: [{ type: "text", text: "Tool result from multi-tool-client" }],
     });
   });
 
@@ -126,9 +114,7 @@ describe("callTool", () => {
     });
 
     expect(result).toEqual({
-      content: [
-        { type: "text", text: "Tool result from single-tool-client" },
-      ],
+      content: [{ type: "text", text: "Tool result from single-tool-client" }],
     });
   });
 
@@ -162,8 +148,8 @@ describe("callTool", () => {
   });
 
   it("passes errors from clients through", async () => {
-    jest.spyOn(mockErrorClient, 'listTools').mockResolvedValue({
-      tools: [mockToolWithSchema("error_tool", "A tool that throws errors")],
+    jest.spyOn(mockErrorClient, "listTools").mockResolvedValue({
+      tools: [mockTool("error_tool")],
     });
 
     await expect(

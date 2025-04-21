@@ -30,7 +30,7 @@ const start = async () => {
       toolArguments: z.record(z.string(), z.unknown()),
     },
     async ({ name, toolArguments }): Promise<CallToolResult> => {
-      return callTool({ clients: clients, name, toolArguments });
+      return callTool({ clients, name, toolArguments });
     },
   );
 

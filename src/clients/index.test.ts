@@ -4,8 +4,6 @@ import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { createClients } from "./index";
 import { McpConfig } from "../config";
 
-const MOCK_TOOL = { name: "test_tool", description: "A test tool" };
-
 jest.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
   Client: jest.fn().mockImplementation(({ name }: { name: string }) => {
     if (name === "jailbreak-mcp-failing-server") {
