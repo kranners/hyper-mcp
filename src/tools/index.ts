@@ -17,15 +17,20 @@ const findClientWithTool = async (
   clients: Client[],
   name: string,
 ): Promise<Client | undefined> => {
-  return clients.find(async (client) => {
-    const tools = await client.listTools().then((result) => result.tools);
-    return tools.some((tool) => tool.name === name);
-  });
+  for (const client of clients) {
+    const { tools } = await client.listTools();
+    const hasTool = tools.some((tool) => tool.name === name);
+    if (hasTool) {
+      return client;
+    }
+  }
+
+  return undefined;
 };
 
 export const listTools = async (clients: Client[]): Promise<CallToolResult> => {
   const tools = await getAllTools(clients);
-  const toolsAsText = tools.map((tools) => JSON.stringify(tools)).join("\n");
+  const toolsAsText = JSON.stringify(tools);
 
   return {
     content: [{ type: "text", text: toolsAsText }],

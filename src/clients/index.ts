@@ -23,6 +23,7 @@ const createTransport = (entry: McpServerEntry): Transport => {
 
 const createClient = async (
   entry: McpServerEntry,
+  name: string,
 ): Promise<Client | undefined> => {
   try {
     const transport = createTransport(entry);
@@ -41,7 +42,10 @@ const createClient = async (
 };
 
 export const createClients = async (config: McpConfig): Promise<Client[]> => {
-  const entries = Object.values(config.mcpServers);
-  const clients = await Promise.all(entries.map(createClient));
+  const entries = Object.entries(config.mcpServers);
+  const clients = await Promise.all(
+    entries.map(([name, entry]) => createClient(entry, name)),
+  );
+
   return clients.filter((client) => client !== undefined);
 };

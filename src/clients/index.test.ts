@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { createConnections } from "./index";
+import { createClients } from "./index";
 import { McpConfig } from "../config";
 
 const MOCK_TOOL = { name: "test_tool", description: "A test tool" };
@@ -17,7 +17,7 @@ jest.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
 
     return {
       connect: jest.fn().mockResolvedValue(undefined),
-      listTools: jest.fn().mockResolvedValue([MOCK_TOOL]),
+      listTools: jest.fn().mockResolvedValue({ tools: [] }),
     };
   }),
 }));
@@ -32,8 +32,8 @@ jest.mock("@modelcontextprotocol/sdk/client/sse.js", () => ({
   SSEClientTransport: jest.fn(),
 }));
 
-describe("createConnections", () => {
-  it("creates connections with StdioClientTransport for command configs", async () => {
+describe("createClients", () => {
+  it("creates clients with StdioClientTransport for command configs", async () => {
     const mockConfig: McpConfig = {
       mcpServers: {
         "stdio-server": {
@@ -44,7 +44,7 @@ describe("createConnections", () => {
       },
     };
 
-    const [connection] = await createConnections(mockConfig);
+    const clients = await createClients(mockConfig);
 
     expect(StdioClientTransport).toHaveBeenCalledWith({
       command: "test-command",
@@ -59,12 +59,11 @@ describe("createConnections", () => {
       }),
     );
 
-    expect(connection.name).toBe("stdio-server");
-    expect(connection.client).toBeDefined();
-    expect(connection.tools).toEqual([MOCK_TOOL]);
+    expect(clients.length).toBe(1);
+    expect(clients[0]).toBeDefined();
   });
 
-  it("creates connections with SSEClientTransport for url configs", async () => {
+  it("creates clients with SSEClientTransport for url configs", async () => {
     const mockConfig: McpConfig = {
       mcpServers: {
         "sse-server": {
@@ -73,7 +72,7 @@ describe("createConnections", () => {
       },
     };
 
-    const [connection] = await createConnections(mockConfig);
+    const clients = await createClients(mockConfig);
 
     expect(SSEClientTransport).toHaveBeenCalledWith(
       new URL("https://test-sse-url.com"),
@@ -84,12 +83,11 @@ describe("createConnections", () => {
         version: "0.0.0",
       }),
     );
-    expect(connection.name).toBe("sse-server");
-    expect(connection.client).toBeDefined();
-    expect(connection.tools).toEqual([MOCK_TOOL]);
+    expect(clients.length).toBe(1);
+    expect(clients[0]).toBeDefined();
   });
 
-  it("creates multiple connections of mixed types", async () => {
+  it("creates multiple clients of mixed types", async () => {
     const mockConfig: McpConfig = {
       mcpServers: {
         "stdio-server": {
@@ -103,20 +101,15 @@ describe("createConnections", () => {
       },
     };
 
-    const connections = await createConnections(mockConfig);
+    const clients = await createClients(mockConfig);
 
-    expect(connections).toHaveLength(2);
+    expect(clients).toHaveLength(2);
     expect(StdioClientTransport).toHaveBeenCalledTimes(1);
     expect(SSEClientTransport).toHaveBeenCalledTimes(1);
     expect(Client).toHaveBeenCalledTimes(2);
-
-    // Verify both connections were created with correct names
-    const names = connections.map((connection) => connection.name);
-    expect(names).toContain("stdio-server");
-    expect(names).toContain("sse-server");
   });
 
-  it("filters out connections that fail to load", async () => {
+  it("filters out clients that fail to load", async () => {
     const mockConfig: McpConfig = {
       mcpServers: {
         "working-server": {
@@ -130,15 +123,12 @@ describe("createConnections", () => {
       },
     };
 
-    const connections = await createConnections(mockConfig);
+    const clients = await createClients(mockConfig);
 
-    // Should only have one working connection
-    expect(connections).toHaveLength(1);
-    expect(connections[0].name).toBe("working-server");
-
-    // Verify console.error was called with the right message
+    expect(clients).toHaveLength(1);
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Failed to load failing-server",
+      "Failed to create client for server",
+      expect.anything(),
       expect.any(Error),
     );
   });
