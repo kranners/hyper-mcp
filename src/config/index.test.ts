@@ -36,7 +36,7 @@ describe("loadConfig", () => {
 });
 
 describe("getConfigPath", () => {
-  it("defaults to ~/.cursor/hyper.mcp.json", () => {
+  it("defaults to ~/.cursor/jailbreak.mcp.json", () => {
     const configPath = getConfigPath({
       env: {},
       argv: ["node", "./path/to/index.js"],

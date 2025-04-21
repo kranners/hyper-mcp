@@ -14,12 +14,6 @@ export const listTools = (connections: Connection[]): CallToolResult => {
   };
 };
 
-export const updateTools = async (connections: Connection[]): Promise<void> => {
-  connections.forEach(async (connection) => {
-    connection.tools = await connection.client.listTools();
-  });
-};
-
 type CallToolInput = {
   connections: Connection[];
   name: string;

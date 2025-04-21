@@ -1,4 +1,4 @@
-# hyper-mcp
+# jailbreak-mcp
 
 A MCP server wrapper for using the entire Model Context Protocol without tool
 limits or missing concepts.
@@ -14,18 +14,18 @@ Example installation will be assuming you're using Cursor.
 
 1. Start by making a backup of your current `mcp.json` file.
 > [!TIP]
-> The default location is `~/.cursor/hyper.mcp.json`.
+> The default location is `~/.cursor/jailbreak.mcp.json`.
 > To rename your existing Cursor config:
-> `mv ~/.cursor/mcp.json ~/.cursor/hyper.mcp.json`
+> `mv ~/.cursor/mcp.json ~/.cursor/jailbreak.mcp.json`
 
 2. Create a new `mcp.json` file where the old one was, with these contents:
 ```json
 {
   "mcpServers": {
-    "hyper": {
+    "jailbreak": {
       "command": "npx",
       "args": [
-        "hyper-mcp",
+        "jailbreak-mcp@latest",
       ],
     }
   }
@@ -33,7 +33,7 @@ Example installation will be assuming you're using Cursor.
 ```
 
 The server will prefer arguments over environment variables over
-`~/.cursor/hyper.mcp.json`.
+`~/.cursor/jailbreak.mcp.json`.
 
 ## `TODO`
 
@@ -53,7 +53,7 @@ Need to:
 - [x] Forward the results back
 
 ### Support
-- [ ] Update transport command to support Nix, etc
+- [ ] Update transport command to support Nix, fnm, etc
 - [ ] Update connections to pass through MCP host environment (is this needed?) 
 - [ ] Update tools to support dynamic tools, eg changing
 

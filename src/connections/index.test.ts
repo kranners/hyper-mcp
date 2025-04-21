@@ -8,7 +8,7 @@ const MOCK_TOOL = { name: "test_tool", description: "A test tool" };
 
 jest.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
   Client: jest.fn().mockImplementation(({ name }: { name: string }) => {
-    if (name === "hyper-mcp-failing-server") {
+    if (name === "jailbreak-mcp-failing-server") {
       return {
         connect: jest.fn().mockRejectedValue(new Error("Connection failed")),
         listTools: jest.fn(),
@@ -54,7 +54,7 @@ describe("createConnections", () => {
 
     expect(Client).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: "hyper-mcp-stdio-server",
+        name: "jailbreak-mcp-stdio-server",
         version: "0.0.0",
       }),
     );
@@ -80,7 +80,7 @@ describe("createConnections", () => {
     );
     expect(Client).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: "hyper-mcp-sse-server",
+        name: "jailbreak-mcp-sse-server",
         version: "0.0.0",
       }),
     );

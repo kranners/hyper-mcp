@@ -1,9 +1,9 @@
 {
-  "name": "hyper-mcp",
+  "name": "jailbreak-mcp",
   "version": "1.1.2",
   "main": "./dist/index.js",
   "bin": {
-    "hyper-mcp": "./dist/index.js"
+    "jailbreak-mcp": "./dist/index.js"
   },
   "files": [
     "dist/"

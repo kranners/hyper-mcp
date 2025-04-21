@@ -40,7 +40,7 @@ const createConnection = async ({
     const transport = createClientTransport(entry);
 
     const client = new Client({
-      name: `hyper-mcp-${name}`,
+      name: `jailbreak-mcp-${name}`,
       version: "0.0.0",
     });
 
