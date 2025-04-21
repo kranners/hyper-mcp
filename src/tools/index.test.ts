@@ -1,5 +1,5 @@
 import { callTool, listTools } from "./index";
-import { Connection } from "../connections";
+import { Connection } from "../clients";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
 jest.mock("@modelcontextprotocol/sdk/types.js", () => ({
