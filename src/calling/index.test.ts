@@ -1,4 +1,4 @@
-import { callTool, listTools } from "./index";
+import { callTool } from "./index";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
@@ -44,34 +44,6 @@ const mockSingleToolClient = {
 } as unknown as Client;
 
 const mockClients = [mockMultiToolClient, mockSingleToolClient];
-
-describe("listTools", () => {
-  it("lists all available tools", async () => {
-    const result = await listTools(mockClients);
-
-    expect(result).toEqual({
-      content: [
-        {
-          type: "text",
-          text: expect.stringContaining("tool1"),
-        },
-      ],
-    });
-
-    expect(result.content[0].type).toBe("text");
-    expect(result.content[0].text).toContain("tool1");
-    expect(result.content[0].text).toContain("tool2");
-    expect(result.content[0].text).toContain("tool3");
-  });
-
-  it("returns empty content for empty clients array", async () => {
-    const result = await listTools([]);
-
-    expect(result).toEqual({
-      content: [{ type: "text", text: "[]" }],
-    });
-  });
-});
 
 describe("callTool", () => {
   beforeEach(() => {

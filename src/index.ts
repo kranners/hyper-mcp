@@ -4,9 +4,19 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { getConfigPath, loadConfig } from "./config";
 import { createClients } from "./clients";
-import { callTool, listTools } from "./tools";
+import { callTool, readResource } from "./calling";
 import { z } from "zod";
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import {
+  CallToolResult,
+  GetPromptRequestSchema,
+  ReadResourceResult,
+} from "@modelcontextprotocol/sdk/types.js";
+import {
+  getAllPrompts,
+  getAllResources,
+  getAllTools,
+  listingTool,
+} from "./listing";
 
 const server = new McpServer({
   name: "jailbreak-mcp",
@@ -20,7 +30,17 @@ const start = async () => {
   const config = loadConfig(configPath);
   const clients = await createClients(config);
 
-  server.tool("listTools", "List available tools", () => listTools(clients));
+  server.tool("listTools", "List tools", () =>
+    listingTool(clients, getAllTools),
+  );
+
+  server.tool("listResources", "List resources", () =>
+    listingTool(clients, getAllResources),
+  );
+
+  server.tool("listPrompts", "List prompts", () =>
+    listingTool(clients, getAllPrompts),
+  );
 
   server.tool(
     "callTool",
@@ -31,6 +51,18 @@ const start = async () => {
     },
     async ({ name, toolArguments }): Promise<CallToolResult> => {
       return callTool({ clients, name, toolArguments });
+    },
+  );
+
+  server.tool(
+    "readResource",
+    "Reads a resource",
+    {
+      name: z.string(),
+      resourceArguments: z.record(z.string(), z.unknown()),
+    },
+    async ({ name, resourceArguments }): Promise<ReadResourceResult> => {
+      return readResource({ clients, name, toolArguments: resourceArguments });
     },
   );
 

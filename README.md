@@ -58,10 +58,10 @@ Need to:
 - [ ] Update tools to support dynamic tools, eg changing
 
 ### Spice
-- [ ] CI & releases
+- [x] CI & releases
 - [ ] Support SSE servers
-- [ ] Also load all prompts & resources
 - [ ] Optionally blacklist or prefer tools
+- [ ] Also load all prompts & resources
 - [ ] Expose all of the other things as well
 - [ ] Instructions tool, configurable help message
 - [ ] Templatable help message?
