@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { getConfigPath, loadConfig } from "./config";
 import { createClients } from "./clients";
-import { callTool, readResource } from "./calling";
+import { callTool, getPrompt, readResource } from "./calling";
 import { z } from "zod";
 import {
   CallToolResult,
@@ -58,11 +58,23 @@ const start = async () => {
     "readResource",
     "Reads a resource",
     {
-      name: z.string(),
-      resourceArguments: z.record(z.string(), z.unknown()),
+      uri: z.string(),
+      resourceArguments: z.record(z.string(), z.unknown()).optional(),
     },
-    async ({ name, resourceArguments }): Promise<ReadResourceResult> => {
-      return readResource({ clients, name, toolArguments: resourceArguments });
+    async ({ uri, resourceArguments }): Promise<CallToolResult> => {
+      return readResource({ clients, uri, resourceArguments });
+    },
+  );
+
+  server.tool(
+    "getPrompt",
+    "Gets a prompt",
+    {
+      name: z.string(),
+      promptArguments: z.record(z.string(), z.string()).optional(),
+    },
+    async ({ name, promptArguments }): Promise<CallToolResult> => {
+      return getPrompt({ clients, name, promptArguments });
     },
   );
 

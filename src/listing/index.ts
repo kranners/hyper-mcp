@@ -13,6 +13,10 @@ const getAll = async <T>(
 
 export const getAllTools = async (clients: Client[]) => {
   return getAll(clients, async (client) => {
+    if (!client.getServerCapabilities()?.tools) {
+      return [];
+    }
+
     const result = await client.listTools();
     return result.tools;
   });
@@ -20,6 +24,10 @@ export const getAllTools = async (clients: Client[]) => {
 
 export const getAllResources = async (clients: Client[]) => {
   return getAll(clients, async (client) => {
+    if (!client.getServerCapabilities()?.resources) {
+      return [];
+    }
+
     const result = await client.listResources();
     return result.resources;
   });
@@ -27,6 +35,10 @@ export const getAllResources = async (clients: Client[]) => {
 
 export const getAllPrompts = async (clients: Client[]) => {
   return getAll(clients, async (client) => {
+    if (!client.getServerCapabilities()?.prompts) {
+      return [];
+    }
+
     const result = await client.listPrompts();
     return result.prompts;
   });
