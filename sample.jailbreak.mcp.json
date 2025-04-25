@@ -1,3 +1,41 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "everything": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-everything"
+      ]
+    },
+    "time": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-time",
+        "--local-timezone=Australia/Melbourne"
+      ]
+    }
+  },
+  "defaultMode": "default",
+  "modes": {
+    "default": {
+      "whitelist": {
+        "everything": {
+          "tools": [
+            "echo",
+            "add",
+            "longRunningOperation"
+          ],
+          "prompts": [
+            "simple_prompt",
+            "complex_prompt",
+            "resource_prompt"
+          ],
+          "resources": [
+            "test://static/resource/1",
+            "test://static/resource/2"
+          ]
+        }
+      },
+      "time": true
+    }
+  }
 }

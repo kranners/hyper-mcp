@@ -1,8 +1,28 @@
+import { readFileSync } from "fs";
 import { DEFAULT_CONFIG_PATH, getConfigPath, loadConfig } from ".";
+import { ZodError } from "zod";
 
 const MOCK_CONFIG_FILES = {
   INVALID_CONFIG: {
     woop: "woop",
+  },
+
+  INVALID_CONFIG_WITH_WHITELIST_AND_BLACKLIST: {
+    mcpServers: {
+      test: {
+        command: "echo",
+      },
+    },
+    modes: {
+      default: {
+        whitelist: {
+          test: true,
+        },
+        blacklist: {
+          test: true,
+        },
+      },
+    },
   },
 
   VALID_CONFIG: {
@@ -27,6 +47,7 @@ const MOCK_CONFIG_FILES = {
         whitelist: {
           vault: { resources: ["cool-resource"] },
           slack: { tools: ["send-message"] },
+          time: true,
         },
       },
     },
@@ -57,24 +78,44 @@ const MOCK_CONFIG_FILES = {
   },
 };
 
+type MockFileName = keyof typeof MOCK_CONFIG_FILES;
+
+const VALID_CONFIGS: MockFileName[] = [
+  "VALID_CONFIG",
+  "VALID_CONFIG_WITH_MODES",
+  "VALID_CONFIG_WITH_DEFAULT_MODE",
+];
+
+const INVALID_CONFIGS: MockFileName[] = [
+  "INVALID_CONFIG",
+  "INVALID_CONFIG_WITH_WHITELIST_AND_BLACKLIST",
+];
+
 jest.mock("fs", () => ({
-  readFileSync: (key: keyof typeof MOCK_CONFIG_FILES) => {
+  readFileSync: jest.fn().mockImplementation((key: MockFileName) => {
     return JSON.stringify(MOCK_CONFIG_FILES[key]);
-  },
+  }),
 }));
 
 describe("loadConfig", () => {
   it("loads from a file", () => {
-    const config = loadConfig("VALID_CONFIG");
-    expect(config.mcpServers.test).toMatchObject({
-      command: "echo",
-    });
+    loadConfig("VALID_CONFIG");
+    expect(readFileSync).toHaveBeenCalledWith("VALID_CONFIG");
   });
 
-  it("fails to load an invalid config", () => {
-    expect(() => {
-      loadConfig("INVALID_CONFIG");
-    }).toThrow();
+  it.each(VALID_CONFIGS)("successfully parses %s", (configKey) => {
+    const config = MOCK_CONFIG_FILES[configKey];
+    try {
+      const parsed = loadConfig(configKey);
+      expect(parsed).toMatchObject(config);
+    } catch (err) {
+      console.error((err as ZodError).format());
+      throw err;
+    }
+  });
+
+  it.each(INVALID_CONFIGS)("fails to parse %s", (configKey) => {
+    expect(() => loadConfig(configKey)).toThrow();
   });
 });
 

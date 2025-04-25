@@ -1,12 +1,54 @@
 # jailbreak-mcp
 
 A MCP server wrapper for using the entire Model Context Protocol without tool
-limits or missing concepts.
+limits, missing concepts, or context overload.
+
+> [!WARNING]
+> This tool is actively being developed. Watch out! 🐉
+
+## Why does this exist?
+
+MCP servers could be ✨ amazing ✨ but using them comes with a few caveats.
+
+---
+**Your client is probably missing most of the actual protocol**.
+There are many capabilities listed in the MCP:
+- Tools, which are like functions.
+- Resources, which are like values.
+- Prompts, which are prompts.
+
+As of writing, almost no MCP client (Cursor, Claude Desktop, Cherry Studio) implements all of them.
+If you are a Cursor user, you can only use tools.
 
 [See the Model Context Protocol documentation](https://modelcontextprotocol.io/clients) to see what your MCP client of choice is lacking.
 
-> [!WARNING]
-> This tool is actively being developed, and currently only supports static tools.
+Admittedly this isn't the biggest deal - most servers just use tools anyway.
+This may become a bigger deal in future if more servers start to implement more of the protocol.
+
+Jailbreak-MCP remedies this by exposing configured resources and prompts as tools.
+
+---
+**MCP servers fill the context window**
+
+The more tools you have configured, the more your MCP servers are taking up of
+the all-important context window of your agent.
+
+If you wanted to use tools or information from multiple MCP servers at once,
+your context window becomes very small very fast.
+
+To remedy this, some clients have implemented warnings about having too many
+tools configured at once. Cursor has implemented a hard restriction of 40
+tools, but hides which tools are disabled at any given moment.
+
+Some servers expose _many_ tools at the same time. The GitHub MCP server alone
+fills the entire Cursor tool cap.
+
+The best thing you can do currently is manually enable and disable which MCP
+servers you want to have turned on at any given moment.
+
+JailbreakMCP fixes this by providing configurable "modes" which expose only the
+exact tools and resources you need to do a given task, and tools to switch
+between modes on the fly.
 
 ## Installation
 
@@ -34,6 +76,47 @@ Example installation will be assuming you're using Cursor.
 
 The server will prefer arguments over environment variables over
 `~/.cursor/jailbreak.mcp.json`.
+
+3. It's strongly recommended here to configure a `default` mode, this will be a list of all the server capabilities you want enabled by default.
+```json
+{
+  "mcpServers": {
+    ...
+  },
+  "modes": {
+    "default": {
+      "whitelist": {
+        "everything": {
+          "tools": [
+            "echo",
+            "add",
+            "longRunningOperation"
+          ],
+          "prompts": [
+            "simple_prompt",
+            "complex_prompt",
+            "resource_prompt"
+          ],
+          "resources": [
+            "test://static/resource/1",
+            "test://static/resource/2"
+          ]
+        },
+        "time": true
+      }
+    }
+  }
+}
+```
+
+A mode must configure either a `whitelist` or a `blacklist` for each mode.
+
+These contain the names of servers, whether or not to whitelist/blacklist them
+entirely, or to choose a set of capabilties to expose/hide instead.
+
+> [!IMPORTANT]
+> You can configure **either** a `whitelist` **or** a `blacklist`, but not
+> both.
 
 ## `TODO`
 

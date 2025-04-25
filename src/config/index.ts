@@ -18,16 +18,25 @@ const McpServerEntry = z.union([McpStdioEntry, McpSseEntry]);
 
 export type McpServerEntry = z.infer<typeof McpServerEntry>;
 
-const McpServerTarget = z.object({
-  tools: z.string().array().optional(),
-  prompts: z.string().array().optional(),
-  resources: z.string().array().optional(),
-});
+const McpServerTarget = z.union([
+  z.boolean(),
+  z.object({
+    tools: z.string().array().optional(),
+    prompts: z.string().array().optional(),
+    resources: z.string().array().optional(),
+  }),
+]);
 
-const McpModeEntry = z.record(
-  z.enum(["whitelist", "blacklist"]),
-  z.union([McpServerTarget, z.boolean()]),
-);
+const McpModeEntry = z.union([
+  z.object({
+    whitelist: z.record(z.string(), McpServerTarget),
+    blacklist: z.undefined(),
+  }),
+  z.object({
+    blacklist: z.record(z.string(), McpServerTarget),
+    whitelist: z.undefined(),
+  }),
+]);
 
 const McpConfig = z.object({
   mcpServers: z.record(z.string(), McpServerEntry),
