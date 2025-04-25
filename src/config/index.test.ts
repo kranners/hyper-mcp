@@ -12,6 +12,49 @@ const MOCK_CONFIG_FILES = {
       },
     },
   },
+
+  VALID_CONFIG_WITH_MODES: {
+    mcpServers: {
+      test: {
+        command: "echo",
+      },
+      slack: {
+        command: "launch the thing",
+      },
+    },
+    modes: {
+      default: {
+        whitelist: {
+          vault: { resources: ["cool-resource"] },
+          slack: { tools: ["send-message"] },
+        },
+      },
+    },
+  },
+
+  VALID_CONFIG_WITH_DEFAULT_MODE: {
+    mcpServers: {
+      test: {
+        command: "echo",
+      },
+      slack: {
+        command: "launch the thing",
+      },
+      time: {
+        command: "launch the thing",
+      },
+    },
+    defaultMode: "messageSender",
+    modes: {
+      messageSender: {
+        whitelist: {
+          vault: { resources: ["coolResource"] },
+          slack: { tools: ["sendMessage"] },
+          time: true,
+        },
+      },
+    },
+  },
 };
 
 jest.mock("fs", () => ({
