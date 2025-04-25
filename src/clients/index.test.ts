@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { createClients } from "./index";
+import { createClientRecord } from "./index";
 import { McpConfig } from "../config";
 
 jest.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
@@ -42,7 +42,7 @@ describe("createClients", () => {
       },
     };
 
-    const clients = await createClients(mockConfig);
+    const clients = await createClientRecord(mockConfig);
 
     expect(StdioClientTransport).toHaveBeenCalledWith({
       command: "test-command",
@@ -70,7 +70,7 @@ describe("createClients", () => {
       },
     };
 
-    const clients = await createClients(mockConfig);
+    const clients = await createClientRecord(mockConfig);
 
     expect(SSEClientTransport).toHaveBeenCalledWith(
       new URL("https://test-sse-url.com"),
@@ -99,7 +99,7 @@ describe("createClients", () => {
       },
     };
 
-    const clients = await createClients(mockConfig);
+    const clients = await createClientRecord(mockConfig);
 
     expect(clients).toHaveLength(2);
     expect(StdioClientTransport).toHaveBeenCalledTimes(1);
@@ -121,7 +121,7 @@ describe("createClients", () => {
       },
     };
 
-    const clients = await createClients(mockConfig);
+    const clients = await createClientRecord(mockConfig);
 
     expect(clients).toHaveLength(1);
     expect(consoleErrorSpy).toHaveBeenCalledWith(
