@@ -1,6 +1,7 @@
 import { callTool, listTools } from "./index";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
+import { ClientRecord } from "../clients";
 
 jest.mock("@modelcontextprotocol/sdk/types.js", () => ({
   ...jest.requireActual("@modelcontextprotocol/sdk/types.js"),
@@ -43,11 +44,14 @@ const mockSingleToolClient = {
   }),
 } as unknown as Client;
 
-const mockClients = [mockMultiToolClient, mockSingleToolClient];
+const mockClientRecord: ClientRecord = {
+  "multi-tool-client": mockMultiToolClient,
+  "single-tool-client": mockSingleToolClient,
+};
 
 describe("listTools", () => {
   it("lists all available tools", async () => {
-    const result = await listTools(mockClients);
+    const result = await listTools(mockClientRecord);
 
     expect(result).toEqual({
       content: [
@@ -64,8 +68,8 @@ describe("listTools", () => {
     expect(result.content[0].text).toContain("tool3");
   });
 
-  it("returns empty content for empty clients array", async () => {
-    const result = await listTools([]);
+  it("returns empty content for empty clients record", async () => {
+    const result = await listTools({});
 
     expect(result).toEqual({
       content: [{ type: "text", text: "[]" }],
@@ -86,7 +90,7 @@ describe("callTool", () => {
 
   it("calls tools in correct client with arguments", async () => {
     const result = await callTool({
-      clients: mockClients,
+      clients: mockClientRecord,
       name: "tool1",
       toolArguments: { key: "value" },
     });
@@ -103,7 +107,7 @@ describe("callTool", () => {
 
   it("calls tools in a different client with arguments", async () => {
     const result = await callTool({
-      clients: mockClients,
+      clients: mockClientRecord,
       name: "tool3",
       toolArguments: { key: "value" },
     });
@@ -120,7 +124,7 @@ describe("callTool", () => {
 
   it("returns an error message when a tool isn't found", async () => {
     const result = await callTool({
-      clients: mockClients,
+      clients: mockClientRecord,
       name: "non_existent_tool",
       toolArguments: {},
     });
@@ -137,7 +141,7 @@ describe("callTool", () => {
 
   it("parses and validates the tool result", async () => {
     const result = await callTool({
-      clients: mockClients,
+      clients: mockClientRecord,
       name: "tool1",
       toolArguments: {},
     });
@@ -152,9 +156,13 @@ describe("callTool", () => {
       tools: [mockTool("error_tool")],
     });
 
+    const mockErrorClientRecord: ClientRecord = {
+      "error-client": mockErrorClient,
+    };
+
     await expect(
       callTool({
-        clients: [mockErrorClient],
+        clients: mockErrorClientRecord,
         name: "error_tool",
         toolArguments: {},
       }),

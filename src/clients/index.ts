@@ -21,7 +21,7 @@ const createTransport = (entry: McpServerEntry): Transport => {
   });
 };
 
-type ClientRecord = Record<string, Client>;
+export type ClientRecord = Record<string, Client>;
 
 const createClient = async (
   name: string,

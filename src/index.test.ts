@@ -10,7 +10,7 @@ beforeAll(async () => {
     command: "node",
     args: [
       join(__dirname, "..", "dist", "index.js"),
-      join(__dirname, "..", "sample.jailbreak.mcp.json"),
+      join(__dirname, "..", "test.jailbreak.mcp.json"),
     ],
   });
 
