@@ -40,6 +40,9 @@ describe("createClientRecord", () => {
           env: { TEST_ENV: "value" },
         },
       },
+      modes: {
+        default: {}
+      }
     };
 
     const clientRecord = await createClientRecord(mockConfig);
@@ -68,6 +71,9 @@ describe("createClientRecord", () => {
           url: "https://test-sse-url.com",
         },
       },
+      modes: {
+        default: {}
+      }
     };
 
     const clientRecord = await createClientRecord(mockConfig);
@@ -97,6 +103,9 @@ describe("createClientRecord", () => {
           url: "https://test-sse-url.com",
         },
       },
+      modes: {
+        default: {}
+      }
     };
 
     const clientRecord = await createClientRecord(mockConfig);
@@ -119,6 +128,9 @@ describe("createClientRecord", () => {
           args: [],
         },
       },
+      modes: {
+        default: {}
+      }
     };
 
     const clientRecord = await createClientRecord(mockConfig);

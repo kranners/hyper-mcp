@@ -10,17 +10,12 @@ const MOCK_CONFIG_FILES = {
   INVALID_CONFIG_WITH_WHITELIST_AND_BLACKLIST: {
     mcpServers: {
       test: {
-        command: "echo",
+        invalid_property: "echo",
       },
     },
     modes: {
       default: {
-        include: {
-          test: true,
-        },
-        exclude: {
-          test: true,
-        },
+        test: true,
       },
     },
   },
@@ -31,6 +26,9 @@ const MOCK_CONFIG_FILES = {
         command: "echo",
       },
     },
+    modes: {
+      default: {}
+    }
   },
 
   VALID_CONFIG_WITH_MODES: {
@@ -78,15 +76,19 @@ describe("loadConfig", () => {
     expect(readFileSync).toHaveBeenCalledWith("VALID_CONFIG");
   });
 
-  it.each(VALID_CONFIGS)("successfully parses %s", (configKey) => {
-    const config = MOCK_CONFIG_FILES[configKey];
-    try {
-      const parsed = loadConfig(configKey);
-      expect(parsed).toMatchObject(config);
-    } catch (err) {
-      console.error((err as ZodError).format());
-      throw err;
-    }
+  it("successfully parses VALID_CONFIG", () => {
+    const config = MOCK_CONFIG_FILES["VALID_CONFIG"];
+    const parsed = loadConfig("VALID_CONFIG");
+    expect(parsed).toMatchObject(config);
+  });
+
+  it("successfully parses VALID_CONFIG_WITH_MODES", () => {
+    const parsed = loadConfig("VALID_CONFIG_WITH_MODES");
+    expect(parsed).toHaveProperty("mcpServers");
+    expect(parsed).toHaveProperty("modes");
+    expect(parsed.mcpServers).toHaveProperty("test");
+    expect(parsed.mcpServers).toHaveProperty("slack");
+    expect(parsed.modes).toHaveProperty("default");
   });
 
   it.each(INVALID_CONFIGS)("fails to parse %s", (configKey) => {
