@@ -30,7 +30,9 @@ const findClientWithTool = async (
   return undefined;
 };
 
-export const listTools = async (clients: ClientRecord): Promise<CallToolResult> => {
+export const listTools = async (
+  clients: ClientRecord,
+): Promise<CallToolResult> => {
   const tools = await getAllTools(clients);
   const toolsAsText = JSON.stringify(tools);
 

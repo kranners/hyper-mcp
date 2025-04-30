@@ -15,10 +15,10 @@ const MOCK_CONFIG_FILES = {
     },
     modes: {
       default: {
-        whitelist: {
+        include: {
           test: true,
         },
-        blacklist: {
+        exclude: {
           test: true,
         },
       },
@@ -44,33 +44,9 @@ const MOCK_CONFIG_FILES = {
     },
     modes: {
       default: {
-        whitelist: {
+        include: {
           vault: { resources: ["cool-resource"] },
           slack: { tools: ["send-message"] },
-          time: true,
-        },
-      },
-    },
-  },
-
-  VALID_CONFIG_WITH_DEFAULT_MODE: {
-    mcpServers: {
-      test: {
-        command: "echo",
-      },
-      slack: {
-        command: "launch the thing",
-      },
-      time: {
-        command: "launch the thing",
-      },
-    },
-    defaultMode: "messageSender",
-    modes: {
-      messageSender: {
-        whitelist: {
-          vault: { resources: ["coolResource"] },
-          slack: { tools: ["sendMessage"] },
           time: true,
         },
       },
@@ -83,7 +59,6 @@ type MockFileName = keyof typeof MOCK_CONFIG_FILES;
 const VALID_CONFIGS: MockFileName[] = [
   "VALID_CONFIG",
   "VALID_CONFIG_WITH_MODES",
-  "VALID_CONFIG_WITH_DEFAULT_MODE",
 ];
 
 const INVALID_CONFIGS: MockFileName[] = [

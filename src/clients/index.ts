@@ -38,7 +38,9 @@ const createClient = async (
   return client;
 };
 
-export const createClientRecord = async (config: McpConfig): Promise<ClientRecord> => {
+export const createClientRecord = async (
+  config: McpConfig,
+): Promise<ClientRecord> => {
   const record: ClientRecord = {};
 
   for (const [name, entry] of Object.entries(config.mcpServers)) {

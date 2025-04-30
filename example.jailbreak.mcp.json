@@ -14,26 +14,23 @@
       ]
     }
   },
-  "defaultMode": "default",
   "modes": {
     "default": {
-      "whitelist": {
-        "everything": {
-          "tools": [
-            "echo",
-            "add",
-            "longRunningOperation"
-          ],
-          "prompts": [
-            "simple_prompt",
-            "complex_prompt",
-            "resource_prompt"
-          ],
-          "resources": [
-            "test://static/resource/1",
-            "test://static/resource/2"
-          ]
-        }
+      "everything": {
+        "tools": [
+          "echo",
+          "add",
+          "longRunningOperation"
+        ],
+        "prompts": [
+          "simple_prompt",
+          "complex_prompt",
+          "resource_prompt"
+        ],
+        "resources": [
+          "test://static/resource/1",
+          "test://static/resource/2"
+        ]
       },
       "time": true
     }

@@ -12,6 +12,7 @@
     "test": "tsc && jest",
     "start": "node --watch ./dist/index.js",
     "inspect": "mcp-inspector node ./dist/index.js",
+    "inspect-debug": "mcp-inspector node --inspect-brk ./dist/index.js",
     "watch": "tsc --watch",
     "lint": "eslint",
     "compile": "tsc",

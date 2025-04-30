@@ -25,7 +25,8 @@ If you are a Cursor user, you can only use tools.
 Admittedly this isn't the biggest deal - most servers just use tools anyway.
 This may become a bigger deal in future if more servers start to implement more of the protocol.
 
-Jailbreak-MCP remedies this by exposing configured resources and prompts as tools.
+Jailbreak-MCP remedies this by exposing configured resources and prompts as
+tools, so even the most restrictive implementations are fully usable.
 
 ---
 **MCP servers fill the context window**
@@ -68,7 +69,11 @@ Example installation will be assuming you're using Cursor.
       "command": "npx",
       "args": [
         "jailbreak-mcp@latest",
+        "/optional/path/to/jailbreak.mcp.json",
       ],
+      "env": {
+        "CONFIG_PATH": "/optional/path/to/jailbreak.mcp.json"
+      }
     }
   }
 }
@@ -77,7 +82,7 @@ Example installation will be assuming you're using Cursor.
 The server will prefer arguments over environment variables over
 `~/.cursor/jailbreak.mcp.json`.
 
-3. It's strongly recommended here to configure a `default` mode, this will be a list of all the server capabilities you want enabled by default.
+3. From here, you need to configure a `default` mode.
 ```json
 {
   "mcpServers": {
@@ -85,38 +90,33 @@ The server will prefer arguments over environment variables over
   },
   "modes": {
     "default": {
-      "whitelist": {
-        "everything": {
-          "tools": [
-            "echo",
-            "add",
-            "longRunningOperation"
-          ],
-          "prompts": [
-            "simple_prompt",
-            "complex_prompt",
-            "resource_prompt"
-          ],
-          "resources": [
-            "test://static/resource/1",
-            "test://static/resource/2"
-          ]
-        },
-        "time": true
-      }
+      "everything": {
+        "tools": [
+          "echo",
+          "add",
+          "longRunningOperation"
+        ],
+        "prompts": [
+          "simple_prompt",
+          "complex_prompt",
+          "resource_prompt"
+        ],
+        "resources": [
+          "test://static/resource/1",
+          "test://static/resource/2"
+        ]
+      },
+      "time": true
     }
   }
 }
 ```
 
-A mode must configure either a `whitelist` or a `blacklist` for each mode.
+## Configuration
 
-These contain the names of servers, whether or not to whitelist/blacklist them
-entirely, or to choose a set of capabilties to expose/hide instead.
+### Modes
 
-> [!IMPORTANT]
-> You can configure **either** a `whitelist` **or** a `blacklist`, but not
-> both.
+Each mode is a whitelist of available tools and servers.
 
 ## `TODO`
 
@@ -128,6 +128,7 @@ Need to:
 - [x] Load a new client for each MCP entry
 - [x] List all tools
 - [x] Add all those to a register
+- [ ] `create-jailbreak` package for `npm init jailbreak` setup
 
 ### Runtime
 - [x] Expose that list via the tools endpoint
@@ -137,15 +138,15 @@ Need to:
 
 ### Support
 - [ ] Update transport command to support Nix, fnm, etc
-- [ ] Update connections to pass through MCP host environment (is this needed?) 
+- [x] Update connections to pass through MCP host environment (is this needed?) 
 - [ ] Update tools to support dynamic tools, eg changing
 
 ### Spice
-- [ ] CI & releases
+- [x] CI & releases
 - [ ] Support SSE servers
-- [ ] Also load all prompts & resources
-- [ ] Optionally blacklist or prefer tools
+- [x] Also load all prompts & resources
+- [x] Optionally exclude or prefer tools
 - [ ] Expose all of the other things as well
-- [ ] Instructions tool, configurable help message
-- [ ] Templatable help message?
+- [ ] Instructions, dynamic?
+    - [ ] Templatable help message?
 
