@@ -115,33 +115,41 @@ export const listClientCapabilities = async ({
   return { tools, prompts, resources };
 };
 
-export const getAllCapabilitiesInMode = async (
+type ClientBundle = {
+  serverName: string;
+  client: Client;
+  capabilities: CapabilitySet;
+};
+
+export const getAllClientBundles = async (
   clients: ClientRecord,
   mode: McpMode,
-): Promise<CapabilitySet> => {
+): Promise<ClientBundle[]> => {
   const entries = Object.entries(clients).map(async ([serverName, client]) => {
     try {
-      return await listClientCapabilities({
-        client,
+      return {
         serverName,
-        mode,
-      });
+        client,
+        capabilities: await listClientCapabilities({
+          client,
+          serverName,
+          mode,
+        }),
+      };
     } catch (error) {
       console.error(`Failed to get capabilities for ${serverName}`, error);
 
       return {
-        tools: [],
-        prompts: [],
-        resources: [],
+        serverName,
+        client,
+        capabilities: {
+          tools: [],
+          prompts: [],
+          resources: [],
+        },
       };
     }
   });
 
-  return Promise.all(entries).then((entries) => {
-    return {
-      tools: entries.map((entry) => entry.tools).flat(),
-      prompts: entries.map((entry) => entry.prompts).flat(),
-      resources: entries.map((entry) => entry.resources).flat(),
-    };
-  });
+  return Promise.all(entries);
 };
