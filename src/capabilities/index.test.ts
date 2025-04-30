@@ -85,20 +85,17 @@ const NO_RESOURCES_CAPABILITY_SCENARIO = {
 const SERVER_FULL_ACCESS_MODE: McpMode = { testServer: true };
 const EMPTY_MODE: McpMode = {};
 const TOOLS_ONLY_MODE: McpMode = {
-  testServer: { tools: ["testCapability"] }
+  testServer: { tools: ["testCapability"] },
 };
 const PROMPTS_ONLY_MODE: McpMode = {
-  testServer: { prompts: ["includedPrompt"] }
-};
-const RESOURCES_ONLY_MODE: McpMode = {
-  testServer: { resources: ["includedResource"] }
+  testServer: { prompts: ["includedPrompt"] },
 };
 const FILTERED_MODE: McpMode = {
   testServer: {
     tools: ["includedTool"],
     prompts: ["includedPrompt"],
     resources: ["includedResource"],
-  }
+  },
 };
 
 // Test scenarios for isCapabilityIncludedInMode tests
@@ -147,7 +144,10 @@ const EMPTY_RESOURCES_RESPONSE = { resources: [], listChanged: false };
 
 const MOCK_TOOLS_RESPONSE = { tools: MOCK_TOOLS, listChanged: false };
 const MOCK_PROMPTS_RESPONSE = { prompts: MOCK_PROMPTS, listChanged: false };
-const MOCK_RESOURCES_RESPONSE = { resources: MOCK_RESOURCES, listChanged: false };
+const MOCK_RESOURCES_RESPONSE = {
+  resources: MOCK_RESOURCES,
+  listChanged: false,
+};
 
 // Helper type for createMockClient function
 type MockClientParams = {
@@ -155,21 +155,23 @@ type MockClientParams = {
   tools?: Tool[];
   prompts?: Prompt[];
   resources?: Resource[];
-}
+};
 
 // Helper function to create mock clients with specified capabilities
 function createMockClient({
   name,
   tools = [],
   prompts = [],
-  resources = []
+  resources = [],
 }: MockClientParams): jest.Mocked<Client> {
   const client = new Client({
     name,
     version: "1.0.0",
   }) as jest.Mocked<Client>;
 
-  client.getServerCapabilities = jest.fn().mockReturnValue(DEFAULT_SERVER_CAPABILITIES);
+  client.getServerCapabilities = jest
+    .fn()
+    .mockReturnValue(DEFAULT_SERVER_CAPABILITIES);
 
   client.listTools = jest.fn().mockResolvedValue({
     tools,
@@ -202,8 +204,12 @@ describe("capabilities module", () => {
       .fn()
       .mockReturnValue(DEFAULT_SERVER_CAPABILITIES);
     mockClient.listTools = jest.fn().mockResolvedValue(EMPTY_TOOLS_RESPONSE);
-    mockClient.listPrompts = jest.fn().mockResolvedValue(EMPTY_PROMPTS_RESPONSE);
-    mockClient.listResources = jest.fn().mockResolvedValue(EMPTY_RESOURCES_RESPONSE);
+    mockClient.listPrompts = jest
+      .fn()
+      .mockResolvedValue(EMPTY_PROMPTS_RESPONSE);
+    mockClient.listResources = jest
+      .fn()
+      .mockResolvedValue(EMPTY_RESOURCES_RESPONSE);
   });
 
   describe("listClientTools", () => {
@@ -221,7 +227,9 @@ describe("capabilities module", () => {
       SERVER_CAPABILITIES_NULL_SCENARIO,
       SERVER_CAPABILITIES_UNDEFINED_SCENARIO,
     ])("returns empty array when $scenario", async ({ capabilities }) => {
-      mockClient.getServerCapabilities = jest.fn().mockReturnValue(capabilities);
+      mockClient.getServerCapabilities = jest
+        .fn()
+        .mockReturnValue(capabilities);
 
       const result = await listClientTools(mockClient);
 
@@ -245,7 +253,9 @@ describe("capabilities module", () => {
       SERVER_CAPABILITIES_NULL_SCENARIO,
       SERVER_CAPABILITIES_UNDEFINED_SCENARIO,
     ])("returns empty array when $scenario", async ({ capabilities }) => {
-      mockClient.getServerCapabilities = jest.fn().mockReturnValue(capabilities);
+      mockClient.getServerCapabilities = jest
+        .fn()
+        .mockReturnValue(capabilities);
 
       const result = await listClientPrompts(mockClient);
 
@@ -269,7 +279,9 @@ describe("capabilities module", () => {
       SERVER_CAPABILITIES_NULL_SCENARIO,
       SERVER_CAPABILITIES_UNDEFINED_SCENARIO,
     ])("returns empty array when $scenario", async ({ capabilities }) => {
-      mockClient.getServerCapabilities = jest.fn().mockReturnValue(capabilities);
+      mockClient.getServerCapabilities = jest
+        .fn()
+        .mockReturnValue(capabilities);
 
       const result = await listClientResources(mockClient);
 
@@ -290,7 +302,7 @@ describe("capabilities module", () => {
         });
 
         expect(result).toBe(expected);
-      }
+      },
     );
 
     it("uses uri when name is not available", () => {
@@ -361,14 +373,14 @@ describe("capabilities module", () => {
     it("gets capabilities for all clients", async () => {
       const mockTool1 = {
         name: "tool1",
-        inputSchema: { type: "object" as const, properties: {} }
+        inputSchema: { type: "object" as const, properties: {} },
       };
       const mockPrompt1 = { name: "prompt1" };
       const mockResource1 = { name: "resource1", uri: "resource1" };
 
       const mockTool2 = {
         name: "tool2",
-        inputSchema: { type: "object" as const, properties: {} }
+        inputSchema: { type: "object" as const, properties: {} },
       };
       const mockPrompt2 = { name: "prompt2" };
       const mockResource2 = { name: "resource2", uri: "resource2" };
@@ -377,14 +389,14 @@ describe("capabilities module", () => {
         name: "client1",
         tools: [mockTool1],
         prompts: [mockPrompt1],
-        resources: [mockResource1]
+        resources: [mockResource1],
       });
 
       const mockClient2 = createMockClient({
         name: "client2",
         tools: [mockTool2],
         prompts: [mockPrompt2],
-        resources: [mockResource2]
+        resources: [mockResource2],
       });
 
       const clientRecord = {

@@ -1,13 +1,12 @@
 import { readFileSync } from "fs";
 import { DEFAULT_CONFIG_PATH, getConfigPath, loadConfig } from ".";
-import { ZodError } from "zod";
 
 const MOCK_CONFIG_FILES = {
   INVALID_CONFIG: {
     woop: "woop",
   },
 
-  INVALID_CONFIG_WITH_WHITELIST_AND_BLACKLIST: {
+  INVALID_CONFIG_WITH_MODE: {
     mcpServers: {
       test: {
         invalid_property: "echo",
@@ -27,8 +26,8 @@ const MOCK_CONFIG_FILES = {
       },
     },
     modes: {
-      default: {}
-    }
+      default: {},
+    },
   },
 
   VALID_CONFIG_WITH_MODES: {
@@ -54,14 +53,9 @@ const MOCK_CONFIG_FILES = {
 
 type MockFileName = keyof typeof MOCK_CONFIG_FILES;
 
-const VALID_CONFIGS: MockFileName[] = [
-  "VALID_CONFIG",
-  "VALID_CONFIG_WITH_MODES",
-];
-
 const INVALID_CONFIGS: MockFileName[] = [
   "INVALID_CONFIG",
-  "INVALID_CONFIG_WITH_WHITELIST_AND_BLACKLIST",
+  "INVALID_CONFIG_WITH_MODE",
 ];
 
 jest.mock("fs", () => ({

@@ -41,8 +41,8 @@ describe("createClientRecord", () => {
         },
       },
       modes: {
-        default: {}
-      }
+        default: {},
+      },
     };
 
     const clientRecord = await createClientRecord(mockConfig);
@@ -72,8 +72,8 @@ describe("createClientRecord", () => {
         },
       },
       modes: {
-        default: {}
-      }
+        default: {},
+      },
     };
 
     const clientRecord = await createClientRecord(mockConfig);
@@ -104,8 +104,8 @@ describe("createClientRecord", () => {
         },
       },
       modes: {
-        default: {}
-      }
+        default: {},
+      },
     };
 
     const clientRecord = await createClientRecord(mockConfig);
@@ -129,8 +129,8 @@ describe("createClientRecord", () => {
         },
       },
       modes: {
-        default: {}
-      }
+        default: {},
+      },
     };
 
     const clientRecord = await createClientRecord(mockConfig);
