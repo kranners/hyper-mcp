@@ -1,7 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { createClients } from "./index";
+import { createClientRecord } from "./index";
 import { McpConfig } from "../config";
 
 jest.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
@@ -30,7 +30,7 @@ jest.mock("@modelcontextprotocol/sdk/client/sse.js", () => ({
   SSEClientTransport: jest.fn(),
 }));
 
-describe("createClients", () => {
+describe("createClientRecord", () => {
   it("creates clients with StdioClientTransport for command configs", async () => {
     const mockConfig: McpConfig = {
       mcpServers: {
@@ -40,9 +40,12 @@ describe("createClients", () => {
           env: { TEST_ENV: "value" },
         },
       },
+      modes: {
+        default: {},
+      },
     };
 
-    const clients = await createClients(mockConfig);
+    const clientRecord = await createClientRecord(mockConfig);
 
     expect(StdioClientTransport).toHaveBeenCalledWith({
       command: "test-command",
@@ -57,8 +60,8 @@ describe("createClients", () => {
       }),
     );
 
-    expect(clients.length).toBe(1);
-    expect(clients[0]).toBeDefined();
+    expect(Object.keys(clientRecord)).toHaveLength(1);
+    expect(clientRecord["stdio-server"]).toBeDefined();
   });
 
   it("creates clients with SSEClientTransport for url configs", async () => {
@@ -68,9 +71,12 @@ describe("createClients", () => {
           url: "https://test-sse-url.com",
         },
       },
+      modes: {
+        default: {},
+      },
     };
 
-    const clients = await createClients(mockConfig);
+    const clientRecord = await createClientRecord(mockConfig);
 
     expect(SSEClientTransport).toHaveBeenCalledWith(
       new URL("https://test-sse-url.com"),
@@ -81,8 +87,8 @@ describe("createClients", () => {
         version: "0.0.0",
       }),
     );
-    expect(clients.length).toBe(1);
-    expect(clients[0]).toBeDefined();
+    expect(Object.keys(clientRecord)).toHaveLength(1);
+    expect(clientRecord["sse-server"]).toBeDefined();
   });
 
   it("creates multiple clients of mixed types", async () => {
@@ -97,17 +103,20 @@ describe("createClients", () => {
           url: "https://test-sse-url.com",
         },
       },
+      modes: {
+        default: {},
+      },
     };
 
-    const clients = await createClients(mockConfig);
+    const clientRecord = await createClientRecord(mockConfig);
 
-    expect(clients).toHaveLength(2);
+    expect(Object.keys(clientRecord)).toHaveLength(2);
     expect(StdioClientTransport).toHaveBeenCalledTimes(1);
     expect(SSEClientTransport).toHaveBeenCalledTimes(1);
     expect(Client).toHaveBeenCalledTimes(2);
   });
 
-  it("filters out clients that fail to load", async () => {
+  it("skips clients that fail to load but includes working ones", async () => {
     const mockConfig: McpConfig = {
       mcpServers: {
         "working-server": {
@@ -119,14 +128,18 @@ describe("createClients", () => {
           args: [],
         },
       },
+      modes: {
+        default: {},
+      },
     };
 
-    const clients = await createClients(mockConfig);
+    const clientRecord = await createClientRecord(mockConfig);
 
-    expect(clients).toHaveLength(1);
+    expect(Object.keys(clientRecord)).toHaveLength(1);
+    expect(clientRecord["working-server"]).toBeDefined();
+    expect(clientRecord["failing-server"]).toBeUndefined();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Failed to create client for server",
-      expect.anything(),
+      "Failed to create client for failing-server",
       expect.any(Error),
     );
   });

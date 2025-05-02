@@ -21,31 +21,36 @@ const createTransport = (entry: McpServerEntry): Transport => {
   });
 };
 
+export type ClientRecord = Record<string, Client>;
+
 const createClient = async (
-  entry: McpServerEntry,
   name: string,
-): Promise<Client | undefined> => {
-  try {
-    const transport = createTransport(entry);
+  entry: McpServerEntry,
+): Promise<Client> => {
+  const transport = createTransport(entry);
 
-    const client = new Client({
-      name: `jailbreak-mcp-${name}`,
-      version: "0.0.0",
-    });
+  const client = new Client({
+    name: `jailbreak-mcp-${name}`,
+    version: "0.0.0",
+  });
 
-    await client.connect(transport);
-    return client;
-  } catch (e) {
-    console.error("Failed to create client for server", entry, e);
-    return;
-  }
+  await client.connect(transport);
+  return client;
 };
 
-export const createClients = async (config: McpConfig): Promise<Client[]> => {
-  const entries = Object.entries(config.mcpServers);
-  const clients = await Promise.all(
-    entries.map(([name, entry]) => createClient(entry, name)),
-  );
+export const createClientRecord = async (
+  config: McpConfig,
+): Promise<ClientRecord> => {
+  const record: ClientRecord = {};
 
-  return clients.filter((client) => client !== undefined);
+  for (const [name, entry] of Object.entries(config.mcpServers)) {
+    try {
+      const client = await createClient(name, entry);
+      record[name] = client;
+    } catch (err) {
+      console.error(`Failed to create client for ${name}`, err);
+    }
+  }
+
+  return record;
 };

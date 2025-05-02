@@ -1,8 +1,22 @@
+import { readFileSync } from "fs";
 import { DEFAULT_CONFIG_PATH, getConfigPath, loadConfig } from ".";
 
 const MOCK_CONFIG_FILES = {
   INVALID_CONFIG: {
     woop: "woop",
+  },
+
+  INVALID_CONFIG_WITH_MODE: {
+    mcpServers: {
+      test: {
+        invalid_property: "echo",
+      },
+    },
+    modes: {
+      default: {
+        test: true,
+      },
+    },
   },
 
   VALID_CONFIG: {
@@ -11,27 +25,68 @@ const MOCK_CONFIG_FILES = {
         command: "echo",
       },
     },
+    modes: {
+      default: {},
+    },
+  },
+
+  VALID_CONFIG_WITH_MODES: {
+    mcpServers: {
+      test: {
+        command: "echo",
+      },
+      slack: {
+        command: "launch the thing",
+      },
+    },
+    modes: {
+      default: {
+        include: {
+          vault: { resources: ["cool-resource"] },
+          slack: { tools: ["send-message"] },
+          time: true,
+        },
+      },
+    },
   },
 };
 
+type MockFileName = keyof typeof MOCK_CONFIG_FILES;
+
+const INVALID_CONFIGS: MockFileName[] = [
+  "INVALID_CONFIG",
+  "INVALID_CONFIG_WITH_MODE",
+];
+
 jest.mock("fs", () => ({
-  readFileSync: (key: keyof typeof MOCK_CONFIG_FILES) => {
+  readFileSync: jest.fn().mockImplementation((key: MockFileName) => {
     return JSON.stringify(MOCK_CONFIG_FILES[key]);
-  },
+  }),
 }));
 
 describe("loadConfig", () => {
   it("loads from a file", () => {
-    const config = loadConfig("VALID_CONFIG");
-    expect(config.mcpServers.test).toMatchObject({
-      command: "echo",
-    });
+    loadConfig("VALID_CONFIG");
+    expect(readFileSync).toHaveBeenCalledWith("VALID_CONFIG");
   });
 
-  it("fails to load an invalid config", () => {
-    expect(() => {
-      loadConfig("INVALID_CONFIG");
-    }).toThrow();
+  it("successfully parses VALID_CONFIG", () => {
+    const config = MOCK_CONFIG_FILES["VALID_CONFIG"];
+    const parsed = loadConfig("VALID_CONFIG");
+    expect(parsed).toMatchObject(config);
+  });
+
+  it("successfully parses VALID_CONFIG_WITH_MODES", () => {
+    const parsed = loadConfig("VALID_CONFIG_WITH_MODES");
+    expect(parsed).toHaveProperty("mcpServers");
+    expect(parsed).toHaveProperty("modes");
+    expect(parsed.mcpServers).toHaveProperty("test");
+    expect(parsed.mcpServers).toHaveProperty("slack");
+    expect(parsed.modes).toHaveProperty("default");
+  });
+
+  it.each(INVALID_CONFIGS)("fails to parse %s", (configKey) => {
+    expect(() => loadConfig(configKey)).toThrow();
   });
 });
 
