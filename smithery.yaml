@@ -1,0 +1,19 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - configPath
+    properties:
+      configPath:
+        type: string
+        description: Path to the Jailbreak-MCP config JSON file inside the container
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'node', args: ['dist/index.js', config.configPath] })
+  exampleConfig:
+    configPath: ./config.json
