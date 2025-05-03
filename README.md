@@ -1,4 +1,5 @@
 # jailbreak-mcp
+[![smithery badge](https://smithery.ai/badge/jailbreak-mcp)](https://smithery.ai/server/jailbreak-mcp)
 
 A MCP server wrapper for using the entire Model Context Protocol without tool
 limits, missing concepts, or context overload.
@@ -53,6 +54,15 @@ between modes on the fly.
 
 ## Installation
 
+### Installing via Smithery
+
+To install jailbreak-mcp for Cursor automatically via [Smithery](https://smithery.ai/server/jailbreak-mcp):
+
+```bash
+npx -y @smithery/cli install jailbreak-mcp --client cursor
+```
+
+### Installing Manually
 Example installation will be assuming you're using Cursor.
 
 1. Start by making a backup of your current `mcp.json` file.
