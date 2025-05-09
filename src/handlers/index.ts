@@ -67,6 +67,92 @@ const getAndCallToolFromBundle = async ({
   return CallToolResultSchema.parse(result);
 };
 
+type HandleListModesInput = {
+  modes: McpModeConfig;
+};
+
+const handleListModesRequest = ({
+  modes
+}: HandleListModesInput): CallToolResult => {
+  const modeListingOutput = Object.entries(modes)
+    .map(([modeName, mode]) => {
+      return getModeListingOutputFor({ modeName, mode });
+    })
+    .join("\n\n");
+
+  return {
+    content: [
+      {
+        type: "text",
+        text: modeListingOutput,
+      },
+    ],
+  };
+};
+
+type HandleChangeModeInput = {
+  request: CallToolRequest;
+  modes: McpModeConfig;
+  server: Server;
+  bundles: ClientBundle[];
+  clients: ClientRecord;
+};
+
+const handleChangeModeRequest = async ({
+  request,
+  modes,
+  server,
+  bundles,
+  clients,
+}: HandleChangeModeInput): Promise<CallToolResult> => {
+  const modeNameToChangeTo = request.params.arguments?.mode_name;
+
+  if (typeof modeNameToChangeTo !== "string") {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "Invalid input, please call change_mode with a valid string mode_name.",
+        },
+      ],
+    };
+  }
+
+  const modeToChangeTo = modes?.[modeNameToChangeTo];
+
+  if (modeToChangeTo === undefined) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Mode ${modeNameToChangeTo} not found, please call change_mode with an existing mode.`,
+        },
+      ],
+    };
+  }
+
+  const newBundles = await getAllClientBundles({
+    clients,
+    mode: modeToChangeTo,
+  });
+
+  updateRequestHandlers({
+    server,
+    bundles: newBundles,
+    clients,
+    modes
+  });
+
+  return {
+    content: [
+      {
+        type: "text",
+        text: `Successfully changed to ${modeNameToChangeTo} mode! Please re-check available tools.`,
+      },
+    ],
+  };
+};
+
 type SetRequestHandlersInput = {
   server: Server;
   bundles: ClientBundle[];
@@ -92,64 +178,17 @@ export const updateRequestHandlers = ({
     CallToolRequestSchema,
     async (request: CallToolRequest): Promise<CallToolResult> => {
       if (request.params.name === "list_modes") {
-        const modeListingOutput = Object.entries(modes)
-          .map(([modeName, mode]) => {
-            return getModeListingOutputFor({ modeName, mode });
-          })
-          .join("\n\n");
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: modeListingOutput,
-            },
-          ],
-        };
+        return handleListModesRequest({ modes });
       }
 
       if (request.params.name === "change_mode") {
-        const modeNameToChangeTo = request.params.arguments?.mode_name;
-
-        if (typeof modeNameToChangeTo !== "string") {
-          return {
-            content: [
-              {
-                type: "text",
-                text: "Invalid input, please call change_mode with a valid string mode_name.",
-              },
-            ],
-          };
-        }
-
-        const modeToChangeTo = modes?.[modeNameToChangeTo];
-
-        if (modeToChangeTo === undefined) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Mode ${modeNameToChangeTo} not found, please call change_mode with an existing mode.`,
-              },
-            ],
-          };
-        }
-
-        const bundles = await getAllClientBundles({
+        return handleChangeModeRequest({
+          request,
+          modes,
+          server,
+          bundles,
           clients,
-          mode: modeToChangeTo,
         });
-
-        updateRequestHandlers({ server, bundles, clients, modes });
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Successfully changed to ${modeNameToChangeTo} mode! Please re-check available tools.`,
-            },
-          ],
-        };
       }
 
       return getAndCallToolFromBundle({
