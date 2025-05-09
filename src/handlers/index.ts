@@ -42,7 +42,7 @@ type GetAndCallToolFromBundleInput = {
   bundles: ClientBundle[];
 };
 
-const getAndCallToolFromBundle = async ({
+export const getAndCallToolFromBundle = async ({
   request,
   bundles,
 }: GetAndCallToolFromBundleInput): Promise<CallToolResult> => {
@@ -71,8 +71,8 @@ type HandleListModesInput = {
   modes: McpModeConfig;
 };
 
-const handleListModesRequest = ({
-  modes
+export const handleListModesRequest = ({
+  modes,
 }: HandleListModesInput): CallToolResult => {
   const modeListingOutput = Object.entries(modes)
     .map(([modeName, mode]) => {
@@ -90,24 +90,22 @@ const handleListModesRequest = ({
   };
 };
 
-type HandleChangeModeInput = {
+type ChangeModeParams = {
   request: CallToolRequest;
   modes: McpModeConfig;
   server: Server;
-  bundles: ClientBundle[];
   clients: ClientRecord;
 };
 
-const handleChangeModeRequest = async ({
+export const handleChangeModeRequest = async ({
   request,
   modes,
   server,
-  bundles,
   clients,
-}: HandleChangeModeInput): Promise<CallToolResult> => {
-  const modeNameToChangeTo = request.params.arguments?.mode_name;
+}: ChangeModeParams): Promise<CallToolResult> => {
+  const newModeName = request.params.arguments?.mode_name;
 
-  if (typeof modeNameToChangeTo !== "string") {
+  if (typeof newModeName !== "string") {
     return {
       content: [
         {
@@ -118,42 +116,42 @@ const handleChangeModeRequest = async ({
     };
   }
 
-  const modeToChangeTo = modes?.[modeNameToChangeTo];
+  const newMode = modes?.[newModeName];
 
-  if (modeToChangeTo === undefined) {
+  if (newMode === undefined) {
     return {
       content: [
         {
           type: "text",
-          text: `Mode ${modeNameToChangeTo} not found, please call change_mode with an existing mode.`,
+          text: `Mode ${newModeName} not found, please call change_mode with an existing mode.`,
         },
       ],
     };
   }
 
-  const newBundles = await getAllClientBundles({
+  const updatedBundles = await getAllClientBundles({
     clients,
-    mode: modeToChangeTo,
+    mode: newMode,
   });
 
   updateRequestHandlers({
     server,
-    bundles: newBundles,
+    bundles: updatedBundles,
     clients,
-    modes
+    modes,
   });
 
   return {
     content: [
       {
         type: "text",
-        text: `Successfully changed to ${modeNameToChangeTo} mode! Please re-check available tools.`,
+        text: `Successfully changed to ${newModeName} mode! Please re-check available tools.`,
       },
     ],
   };
 };
 
-type SetRequestHandlersInput = {
+type RequestHandlerParams = {
   server: Server;
   bundles: ClientBundle[];
   modes: McpModeConfig;
@@ -165,7 +163,7 @@ export const updateRequestHandlers = ({
   bundles,
   modes,
   clients,
-}: SetRequestHandlersInput): void => {
+}: RequestHandlerParams): void => {
   server.setRequestHandler(
     ListToolsRequestSchema,
     async (): Promise<ListToolsResult> => {
@@ -186,7 +184,6 @@ export const updateRequestHandlers = ({
           request,
           modes,
           server,
-          bundles,
           clients,
         });
       }
