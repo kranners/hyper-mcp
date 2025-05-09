@@ -4,14 +4,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { getConfigPath, loadConfig } from "./config";
 import { createClientRecord } from "./clients";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import {
-  CallToolRequestSchema,
-  CallToolResult,
-  CallToolResultSchema,
-  ListToolsRequestSchema,
-  ListToolsResult,
-} from "@modelcontextprotocol/sdk/types.js";
 import { getAllClientBundles } from "./capabilities";
+import { updateRequestHandlers } from "./handlers";
 
 const start = async () => {
   const transport = new StdioServerTransport();
@@ -38,42 +32,17 @@ const start = async () => {
   );
 
   const defaultMode = config.modes.default;
+  const bundles = await getAllClientBundles({
+    clients,
+    mode: defaultMode,
+  });
 
-  server.setRequestHandler(
-    ListToolsRequestSchema,
-    async (): Promise<ListToolsResult> => {
-      const bundles = await getAllClientBundles(clients, defaultMode);
-      const tools = bundles.map((bundle) => bundle.capabilities.tools).flat();
-      return { tools };
-    },
-  );
-
-  server.setRequestHandler(
-    CallToolRequestSchema,
-    async (request): Promise<CallToolResult> => {
-      const bundles = await getAllClientBundles(clients, defaultMode);
-
-      const bundleWithTool = bundles.find((bundle) => {
-        return bundle.capabilities.tools.some(
-          (tool) => tool.name === request.params.name,
-        );
-      });
-
-      if (bundleWithTool === undefined) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `ERROR: Tool with the name ${name} couldn't be found.`,
-            },
-          ],
-        };
-      }
-
-      const result = await bundleWithTool.client.callTool(request.params);
-      return CallToolResultSchema.parse(result);
-    },
-  );
+  updateRequestHandlers({
+    server,
+    bundles,
+    clients,
+    modes: config.modes,
+  });
 
   await server.connect(transport);
 };

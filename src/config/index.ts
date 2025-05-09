@@ -27,19 +27,25 @@ const McpServerTarget = z.union([
   }),
 ]);
 
+export type McpServerTarget = z.infer<typeof McpServerTarget>;
+
 const McpMode = z.record(z.string(), McpServerTarget);
 
 export type McpMode = z.infer<typeof McpMode>;
 
-const McpModes = z
+const McpModeConfig = z
   .object({
     default: McpMode,
   })
   .and(z.record(z.string(), McpMode));
 
+export type McpModeConfig = z.infer<typeof McpModeConfig>;
+
+const McpServerConfig = z.record(z.string(), McpServerEntry);
+
 const McpConfig = z.object({
-  mcpServers: z.record(z.string(), McpServerEntry),
-  modes: McpModes,
+  mcpServers: McpServerConfig,
+  modes: McpModeConfig,
 });
 
 export type McpConfig = z.infer<typeof McpConfig>;
