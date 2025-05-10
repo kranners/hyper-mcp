@@ -115,16 +115,21 @@ export const listClientCapabilities = async ({
   return { tools, prompts, resources };
 };
 
-type ClientBundle = {
+export type ClientBundle = {
   serverName: string;
   client: Client;
   capabilities: CapabilitySet;
 };
 
-export const getAllClientBundles = async (
-  clients: ClientRecord,
-  mode: McpMode,
-): Promise<ClientBundle[]> => {
+type GetAllClientBundlesInput = {
+  clients: ClientRecord;
+  mode: McpMode;
+};
+
+export const getAllClientBundles = async ({
+  clients,
+  mode,
+}: GetAllClientBundlesInput): Promise<ClientBundle[]> => {
   const entries = Object.entries(clients).map(async ([serverName, client]) => {
     try {
       return {
