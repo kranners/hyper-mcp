@@ -46,6 +46,7 @@ const McpServerConfig = z.record(z.string(), McpServerEntry);
 const McpConfig = z.object({
   mcpServers: McpServerConfig,
   modes: McpModeConfig,
+  startingMode: z.string().optional(),
 });
 
 export type McpConfig = z.infer<typeof McpConfig>;

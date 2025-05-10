@@ -31,7 +31,7 @@ const start = async () => {
     },
   );
 
-  const defaultMode = config.modes.default;
+  const defaultMode = config.modes?.[config.startingMode ?? "default"];
   const bundles = await getAllClientBundles({
     clients,
     mode: defaultMode,

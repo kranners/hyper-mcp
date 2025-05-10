@@ -9,9 +9,11 @@ import {
   ListToolsResult,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { McpModeConfig } from "../config";
+import { getConfigPath, loadConfig, McpModeConfig } from "../config";
 import { getModeListingOutputFor } from "../formatting";
 import { ClientRecord } from "../clients";
+
+import { writeFileSync } from "fs";
 
 const MODE_TOOLS: [Tool, Tool] = [
   {
@@ -141,11 +143,22 @@ export const handleChangeModeRequest = async ({
     modes,
   });
 
+  const configPath = getConfigPath({ env: process.env, argv: process.argv });
+  const config = loadConfig(configPath);
+  config.startingMode = newModeName;
+
+  writeFileSync(configPath, JSON.stringify(config, null, 2));
+
   return {
     content: [
       {
         type: "text",
-        text: `Successfully changed to ${newModeName} mode! Please re-check available tools.`,
+        text: [
+          `Successfully updated mode to ${newModeName}.`,
+          "If you're an agent, particularly a Cursor agent, then it is critically important",
+          "to remind your user to refresh the MCP server, as new tools are available.",
+          "If you do not refresh the server, then you will enter a broken mismatched state.",
+        ].join("\n"),
       },
     ],
   };
