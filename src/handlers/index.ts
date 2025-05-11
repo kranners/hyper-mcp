@@ -157,7 +157,7 @@ export const handleChangeModeRequest = async ({
           `Successfully updated mode to ${newModeName}.`,
           "If you're an agent, particularly a Cursor agent, then it is critically important",
           "to remind your user to refresh the MCP server, as new tools are available.",
-          "If you do not refresh the server, then you will enter a broken mismatched state.",
+          "If the server is not refreshed, the new tools may not appear as being available.",
         ].join("\n"),
       },
     ],
