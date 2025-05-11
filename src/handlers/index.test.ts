@@ -18,6 +18,14 @@ import {
   ListToolsResult,
   CallToolResult,
 } from "@modelcontextprotocol/sdk/types.js";
+import path from "path";
+
+process.env.CONFIG_PATH = path.join(
+  __dirname,
+  "..",
+  "..",
+  "test.jailbreak.mcp.json",
+);
 
 jest.mock("@modelcontextprotocol/sdk/server/index.js");
 jest.mock("@modelcontextprotocol/sdk/client/index.js");
