@@ -2,5 +2,6 @@
   "mcpServers": {},
   "modes": {
     "default": {}
-  }
+  },
+  "startingMode": "alternate-mode"
 }

@@ -15,10 +15,8 @@ import {
   getAllClientBundles,
 } from "./index";
 
-// Mock implementations
 jest.mock("@modelcontextprotocol/sdk/client/index.js");
 
-// Test constants
 const MOCK_TOOLS: Tool[] = [
   {
     name: "includedTool",
@@ -46,7 +44,6 @@ const DEFAULT_SERVER_CAPABILITIES: ServerCapabilities = {
   resources: { listChanged: false, subscribe: false },
 };
 
-// Common test scenarios
 const SERVER_CAPABILITIES_NULL_SCENARIO = {
   scenario: "getServerCapabilities returns null",
   capabilities: null,
@@ -81,7 +78,6 @@ const NO_RESOURCES_CAPABILITY_SCENARIO = {
   } as ServerCapabilities,
 };
 
-// Common modes used in tests
 const SERVER_FULL_ACCESS_MODE: McpMode = { testServer: true };
 const EMPTY_MODE: McpMode = {};
 const TOOLS_ONLY_MODE: McpMode = {
@@ -98,7 +94,6 @@ const FILTERED_MODE: McpMode = {
   },
 };
 
-// Test scenarios for isCapabilityIncludedInMode tests
 const CAPABILITY_MODE_TEST_SCENARIOS = [
   {
     scenario: "server config is true",
@@ -127,17 +122,14 @@ const CAPABILITY_MODE_TEST_SCENARIOS = [
   },
 ];
 
-// Test data for capability testing
 const TEST_CAPABILITY = {
   name: "testCapability",
   inputSchema: { type: "object" as const, properties: {} },
 };
 const TEST_SERVER_NAME = "testServer";
 
-// Resource without a name to test URI fallback
 const RESOURCE_WITHOUT_NAME = { uri: "testUri" } as Resource;
 
-// Default mock return values
 const EMPTY_TOOLS_RESPONSE = { tools: [], listChanged: false };
 const EMPTY_PROMPTS_RESPONSE = { prompts: [], listChanged: false };
 const EMPTY_RESOURCES_RESPONSE = { resources: [], listChanged: false };
@@ -149,7 +141,6 @@ const MOCK_RESOURCES_RESPONSE = {
   listChanged: false,
 };
 
-// Helper type for createMockClient function
 type MockClientParams = {
   name: string;
   tools?: Tool[];
@@ -157,7 +148,6 @@ type MockClientParams = {
   resources?: Resource[];
 };
 
-// Helper function to create mock clients with specified capabilities
 function createMockClient({
   name,
   tools = [],
@@ -399,17 +389,17 @@ describe("capabilities module", () => {
         resources: [mockResource2],
       });
 
-      const clientRecord = {
+      const clients = {
         server1: mockClient1,
         server2: mockClient2,
       };
 
-      const multiServerMode: McpMode = {
+      const mode: McpMode = {
         server1: true,
         server2: true,
       };
 
-      const result = await getAllClientBundles(clientRecord, multiServerMode);
+      const result = await getAllClientBundles({ clients, mode });
 
       const [bundle1, bundle2] = result;
 
@@ -446,17 +436,17 @@ describe("capabilities module", () => {
         .fn()
         .mockRejectedValue(new Error("Connection failed"));
 
-      const clientRecord = {
+      const clients = {
         errorServer: mockClient,
       };
 
-      const errorServerMode: McpMode = {
+      const mode: McpMode = {
         errorServer: true,
       };
 
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
 
-      const result = await getAllClientBundles(clientRecord, errorServerMode);
+      const result = await getAllClientBundles({ clients, mode });
 
       const [errorBundle] = result;
 
