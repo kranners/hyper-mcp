@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/kranners/jailbreak-mcp/compare/v1.2.0...v1.3.0) (2025-05-11)
+
+
+### Features
+
+* adding listing and changing modes ([1f3df80](https://github.com/kranners/jailbreak-mcp/commit/1f3df8045760ee51e9729054dcaf60c651447f2a))
+* **default:** adding default mode for cursor & other bad mcp clients ([5f3beef](https://github.com/kranners/jailbreak-mcp/commit/5f3beefef5ae6b12ed1d540b031b916b0e83215e))
+
 # [1.2.0](https://github.com/kranners/jailbreak-mcp/compare/v1.1.4...v1.2.0) (2025-05-02)
 
 
