@@ -25,6 +25,9 @@ If you are a Cursor user, you can only use tools.
 Admittedly this isn't the biggest deal - most servers just use tools anyway.
 This may become a bigger deal in future if more servers start to implement more of the protocol.
 
+> [!WARNING]
+> This bit isn't done yet! It's currently tools only.
+
 Jailbreak-MCP remedies this by exposing configured resources and prompts as
 tools, so even the most restrictive implementations are fully usable.
 
@@ -116,7 +119,88 @@ The server will prefer arguments over environment variables over
 
 ### Modes
 
-Each mode is a whitelist of available tools and servers.
+Each mode is a whitelist of available servers, and any particular
+tools/prompts/capabilities to allow.
+
+Modes are key/value pairs under the `modes` key in the config.
+
+```json
+{
+    "mcpServers": {
+        ...
+    },
+    "modes": {
+        "default": {
+            ...
+        },
+        "anotherModeName": {
+            ...
+        }
+    }
+}
+```
+
+Under each mode are keys of the names of the servers to allow (the same name as
+defined under `mcpServers`).
+
+To allow everything for a given server, set its value to `true`.
+
+```json
+{
+    "modes": {
+        "admin": {
+            "email": true,
+            "slack": true,
+            "time": true,
+        }
+    }
+}
+```
+
+To be more specific, specify which tools, prompts, and resources you want as a
+list of names or resource URIs.
+
+```json
+{
+    "modes": {
+        "admin": {
+            "time": true,
+            "email": {
+                "tools": [
+                    "read_email",
+                    "send_email",
+                    "list_inbox"
+                ]
+            },
+            "slack": {
+                "tools": [
+                    "slack_list_channels",
+                    "slack_get_channel_history",
+                    "slack_get_thread_replies",
+                    "slack_get_users",
+                    "slack_get_user_profile"
+                ]
+            },
+            "everything": {
+                "tools": [
+                    "echo",
+                    "add",
+                    "longRunningOperation"
+                ],
+                "prompts": [
+                    "simple_prompt",
+                    "complex_prompt",
+                    "resource_prompt"
+                ],
+                "resources": [
+                    "test://static/resource/1",
+                    "test://static/resource/2"
+                ]
+            },
+        }
+    }
+}
+```
 
 ## `TODO`
 
