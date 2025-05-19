@@ -1,5 +1,7 @@
 # jailbreak-mcp
 
+[![smithery badge](https://smithery.ai/badge/@kranners/jailbreak-mcp)](https://smithery.ai/server/@kranners/jailbreak-mcp)
+
 A MCP server wrapper for using the entire Model Context Protocol without tool
 limits, missing concepts, or context overload.
 
@@ -55,6 +57,14 @@ exact tools and resources you need to do a given task, and tools to switch
 between modes on the fly.
 
 ## Installation
+
+### Installing via Smithery
+
+To install Jailbreak MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@kranners/jailbreak-mcp):
+
+```bash
+npx -y @smithery/cli install @kranners/jailbreak-mcp --client claude
+```
 
 Example installation will be assuming you're using Cursor.
 
