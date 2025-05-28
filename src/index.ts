@@ -10,14 +10,19 @@ import { updateRequestHandlers } from "./handlers";
 const start = async () => {
   const transport = new StdioServerTransport();
 
+  console.log("getting config");
   const configPath = getConfigPath({ env: process.env, argv: process.argv });
   const config = loadConfig(configPath);
+
+  console.log("creating clients");
   const clients = await createClientRecord(config);
 
+  console.log("building instructions");
   const instructions = Object.values(clients)
     .map((client) => client.getInstructions())
     .join("\n");
 
+  console.log("setting up server");
   const server = new Server(
     {
       name: "jailbreak-mcp",
@@ -32,11 +37,14 @@ const start = async () => {
   );
 
   const defaultMode = config.modes?.[config.startingMode ?? "default"];
+
+  console.log("making client bundles");
   const bundles = await getAllClientBundles({
     clients,
     mode: defaultMode,
   });
 
+  console.log("updating request handlers");
   updateRequestHandlers({
     server,
     bundles,

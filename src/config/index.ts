@@ -3,15 +3,27 @@ import { z } from "zod";
 import { join } from "path";
 import { homedir } from "os";
 
+const expandVariables = (input: unknown) => {
+  return String(input).replace(/\$([A-Z_]+)/g, (_, variableName) => {
+    if (process.env[variableName] === undefined) {
+      return variableName;
+    }
+
+    return process.env[variableName];
+  });
+};
+
+const environmentExpandedString = z.preprocess(expandVariables, z.string());
+
 const McpStdioEntry = z.object({
-  command: z.string(),
-  args: z.string().array().optional(),
-  env: z.record(z.string(), z.string()).optional(),
+  command: environmentExpandedString,
+  args: environmentExpandedString.array().optional(),
+  env: z.record(z.string(), environmentExpandedString).optional(),
 });
 
 const McpSseEntry = z.object({
   url: z.string(),
-  env: z.record(z.string(), z.string()).optional(),
+  env: z.record(z.string(), environmentExpandedString).optional(),
 });
 
 const McpServerEntry = z.union([McpStdioEntry, McpSseEntry]);

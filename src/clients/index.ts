@@ -27,14 +27,21 @@ const createClient = async (
   name: string,
   entry: McpServerEntry,
 ): Promise<Client> => {
+  console.log("creating transport for", name);
   const transport = createTransport(entry);
 
-  const client = new Client({
-    name: `jailbreak-mcp-${name}`,
-    version: "0.0.0",
-  });
+  console.log("creating client for", name);
+  const client = new Client({ name, version: "0.0.0" });
 
-  await client.connect(transport);
+  await client
+    .connect(transport)
+    .then(() => {
+      console.log("successfully connected to", name);
+    })
+    .catch((error) => {
+      console.error("unable to create client", name, error);
+    });
+
   return client;
 };
 
